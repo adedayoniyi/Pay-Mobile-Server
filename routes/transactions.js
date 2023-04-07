@@ -71,16 +71,16 @@ transactionRouter.post("/api/transactions/transfer", async (req, res) => {
   }
 });
 
-// transactionRouter.get("/api/getTransactions/:username", async (req, res) => {
-//   try {
-//     const { username } = req.params;
-//     const user = await Transactions.findOne({ username });
-//     for (let i = 0; i <= user.trnxType; i++) {
-//       res.status(200).json({ trnxType: user.trnxType[i] });
-//     }
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
+transactionRouter.get("/api/getTransactions/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const userTransactions = await Transactions.find({
+      $or: [{ username: username }, { username: username }],
+    });
+    res.status(200).json(userTransactions);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = transactionRouter;
