@@ -77,7 +77,8 @@ transactionRouter.get("/api/getTransactions/:username", async (req, res) => {
     const userTransactions = await Transactions.find({
       $or: [{ username: username }, { username: username }],
     });
-    res.status(200).json(userTransactions);
+    let showTransactionsFromRecentToLast = userTransactions.reverse();
+    res.status(200).json(showTransactionsFromRecentToLast);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
