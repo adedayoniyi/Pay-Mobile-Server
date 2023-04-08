@@ -27,7 +27,7 @@ const creditAccount = async ({
   const transaction = await Transactions.create(
     [
       {
-        trnxType: "CR",
+        trnxType: "Credit",
         purpose,
         amount,
         username: username,
@@ -83,7 +83,7 @@ const debitAccount = async ({
   const transaction = await Transactions.create(
     [
       {
-        trnxType: "DR",
+        trnxType: "Debit",
         purpose,
         amount,
         username: username,
