@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     balance: {
-      type: mongoose.Decimal128,
+      type: Number,
       required: true,
       default: 0.0,
     },

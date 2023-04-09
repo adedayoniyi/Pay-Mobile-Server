@@ -13,7 +13,7 @@ const transactionSchema = new mongoose.Schema(
       required: true,
     },
     amount: {
-      type: mongoose.Decimal128,
+      type: Number,
       required: true,
       default: 0.0,
     },
@@ -26,11 +26,11 @@ const transactionSchema = new mongoose.Schema(
       required: true,
     },
     balanceBefore: {
-      type: mongoose.Decimal128,
+      type: Number,
       required: true,
     },
     balanceAfter: {
-      type: mongoose.Decimal128,
+      type: Number,
       required: true,
     },
 
