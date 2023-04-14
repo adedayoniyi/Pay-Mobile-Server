@@ -114,4 +114,53 @@ authRouter.get("/api/getUsernameFortransfer/:username", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+authRouter.post("/api/createLoginPin/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { pin } = req.body;
+
+    const pinEncrypt = await bcryptjs.hash(pin, 8);
+    await User.findOneAndUpdate(username, { pin: pinEncrypt });
+    res.status(201).json({ message: "Pin created successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+authRouter.post("/api/loginUsingPin/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { pin } = req.body;
+    const user = await User.findOne({ username });
+    const isPinCorrect = await bcryptjs.compare(pin, user.pin);
+    if (!isPinCorrect) {
+      return res.status(400).json({ message: "Incorrect Pin. Try again!" });
+    }
+    res.status(200).json({ message: "Login Successful" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+authRouter.post("/api/changePin/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { oldPin, newPin } = req.body;
+    const user = await User.findOne({ username });
+    const isPinCorrect = await bcryptjs.compare(oldPin, user.pin);
+    if (!isPinCorrect) {
+      return res.status(400).json({ message: "Incorrect Pin. Try again!" });
+    }
+
+    const encryptNewPin = await bcryptjs.hash(newPin, 8);
+    await User.findOneAndUpdate(username, {
+      pin: encryptNewPin,
+    });
+
+    res.status(200).json({ message: "Pin changed successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 module.exports = authRouter;

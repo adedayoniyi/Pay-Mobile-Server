@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { transactionSchema } = require("./transaction");
 
 const userSchema = new mongoose.Schema(
   {
@@ -29,6 +28,10 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       required: true,
+      type: String,
+    },
+    pin: {
+      required: false,
       type: String,
     },
     balance: {
