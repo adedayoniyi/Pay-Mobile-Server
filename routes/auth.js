@@ -120,9 +120,13 @@ authRouter.post("/api/createLoginPin/:username", async (req, res) => {
     const { username } = req.params;
     const { pin } = req.body;
 
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(400).json({ message: `User ${username} is not found` });
+    }
     const pinEncrypt = await bcryptjs.hash(pin, 8);
-    await User.findOneAndUpdate(username, { pin: pinEncrypt });
-    res.status(201).json({ message: "Pin created successfully" });
+    await User.findOneAndUpdate({ username }, { pin: pinEncrypt });
+    res.status(200).json({ message: "Pin created successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -154,9 +158,12 @@ authRouter.post("/api/changePin/:username", async (req, res) => {
     }
 
     const encryptNewPin = await bcryptjs.hash(newPin, 8);
-    await User.findOneAndUpdate(username, {
-      pin: encryptNewPin,
-    });
+    await User.findOneAndUpdate(
+      { username },
+      {
+        pin: encryptNewPin,
+      }
+    );
 
     res.status(200).json({ message: "Pin changed successfully" });
   } catch (err) {
