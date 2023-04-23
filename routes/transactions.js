@@ -100,6 +100,11 @@ transactionRouter.post("/api/fundWallet/:username", auth, async (req, res) => {
     if (!user) {
       return res.status(400).json({ mesage: "User not found!!" });
     }
+    if (amount > 5000) {
+      return res
+        .status(400)
+        .json({ message: "The maximum amount that can be funded is 5000" });
+    }
     await User.findOneAndUpdate(
       { username },
       { balance: user.balance + amount }
