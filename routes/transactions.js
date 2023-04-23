@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const { v4 } = require("uuid");
 const Transactions = require("../models/transaction");
 const { creditAccount, debitAccount } = require("../utils/transactions");
+const User = require("../models/user");
 
 transactionRouter.post("/api/transactions/transfer", async (req, res) => {
   const session = await mongoose.startSession();
@@ -79,6 +80,26 @@ transactionRouter.get("/api/getTransactions/:username", async (req, res) => {
     });
     let showTransactionsFromRecentToLast = userTransactions.reverse();
     res.status(200).json(showTransactionsFromRecentToLast);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+transactionRouter.post("/api/fundWallet/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    /*please note if this will be used with the futter app,
+    only integers are allowed, no decimals allowed or an error will be thrown*/
+    const { amount } = req.body;
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(400).json({ mesage: "User not found!!" });
+    }
+    await User.findOneAndUpdate(
+      { username },
+      { balance: user.balance + amount }
+    );
+    res.status(200).json({ message: "Account funded successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
