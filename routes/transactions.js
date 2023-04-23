@@ -5,8 +5,9 @@ const { v4 } = require("uuid");
 const Transactions = require("../models/transaction");
 const { creditAccount, debitAccount } = require("../utils/transactions");
 const User = require("../models/user");
+const auth = require("../middlewares/auth");
 
-transactionRouter.post("/api/transactions/transfer", async (req, res) => {
+transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -72,20 +73,24 @@ transactionRouter.post("/api/transactions/transfer", async (req, res) => {
   }
 });
 
-transactionRouter.get("/api/getTransactions/:username", async (req, res) => {
-  try {
-    const { username } = req.params;
-    const userTransactions = await Transactions.find({
-      $or: [{ username: username }, { username: username }],
-    });
-    let showTransactionsFromRecentToLast = userTransactions.reverse();
-    res.status(200).json(showTransactionsFromRecentToLast);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+transactionRouter.get(
+  "/api/getTransactions/:username",
+  auth,
+  async (req, res) => {
+    try {
+      const { username } = req.params;
+      const userTransactions = await Transactions.find({
+        $or: [{ username: username }, { username: username }],
+      });
+      let showTransactionsFromRecentToLast = userTransactions.reverse();
+      res.status(200).json(showTransactionsFromRecentToLast);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
   }
-});
+);
 
-transactionRouter.post("/api/fundWallet/:username", async (req, res) => {
+transactionRouter.post("/api/fundWallet/:username", auth, async (req, res) => {
   try {
     const { username } = req.params;
     /*please note if this will be used with the futter app,

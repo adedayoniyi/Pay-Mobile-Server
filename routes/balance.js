@@ -4,7 +4,7 @@ const User = require("../models/user");
 
 const balanceRouter = express.Router();
 
-balanceRouter.get("/api/balance/:username", async (req, res) => {
+balanceRouter.get("/api/balance/:username", auth, async (req, res) => {
   try {
     const { username } = req.params;
     const user = await User.findOne({ username });
@@ -13,13 +13,5 @@ balanceRouter.get("/api/balance/:username", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
-// balanceRouter.get('/api/getTransactions',async(req,res)=>{
-//   try{
-//     const
-//   }catch(err){
-//     console.log(err)
-//   }
-// })
 
 module.exports = balanceRouter;

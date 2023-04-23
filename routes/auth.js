@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const auth = require("../middlewares/auth");
 
-authRouter.post("/api/createUser", async (req, res) => {
+authRouter.post("/api/createUser", auth, async (req, res) => {
   try {
     const { fullname, username, email, password } = req.body;
     const userExists = await User.findOne({ username });
@@ -39,7 +39,7 @@ authRouter.post("/api/createUser", async (req, res) => {
   }
 });
 
-authRouter.post("/api/login", async (req, res) => {
+authRouter.post("/api/login", auth, async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
@@ -66,7 +66,7 @@ authRouter.post("/api/login", async (req, res) => {
   }
 });
 
-authRouter.post("/tokenIsValid", async (req, res) => {
+authRouter.post("/tokenIsValid", auth, async (req, res) => {
   try {
     const token = req.header("x-auth-token");
     if (!token) return res.json(false);
@@ -85,7 +85,7 @@ authRouter.get("/", auth, async (req, res) => {
   res.json({ ...user._doc, token: req.token });
 });
 
-authRouter.get("/api/getUsername/:username", async (req, res) => {
+authRouter.get("/api/getUsername/:username", auth, async (req, res) => {
   try {
     const { username } = req.params;
     const user = await User.findOne({ username });
@@ -100,22 +100,26 @@ authRouter.get("/api/getUsername/:username", async (req, res) => {
   }
 });
 
-authRouter.get("/api/getUsernameFortransfer/:username", async (req, res) => {
-  try {
-    const { username } = req.params;
-    const user = await User.findOne({ username });
-    if (user) {
-      return res.status(200).json({ message: user.fullname });
+authRouter.get(
+  "/api/getUsernameFortransfer/:username",
+  auth,
+  async (req, res) => {
+    try {
+      const { username } = req.params;
+      const user = await User.findOne({ username });
+      if (user) {
+        return res.status(200).json({ message: user.fullname });
+      }
+      res
+        .status(400)
+        .json({ message: "Invalid username, please check and try again" });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
     }
-    res
-      .status(400)
-      .json({ message: "Invalid username, please check and try again" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
   }
-});
+);
 
-authRouter.post("/api/createLoginPin/:username", async (req, res) => {
+authRouter.post("/api/createLoginPin/:username", auth, async (req, res) => {
   try {
     const { username } = req.params;
     const { pin } = req.body;
@@ -132,7 +136,7 @@ authRouter.post("/api/createLoginPin/:username", async (req, res) => {
   }
 });
 
-authRouter.post("/api/loginUsingPin/:username", async (req, res) => {
+authRouter.post("/api/loginUsingPin/:username", auth, async (req, res) => {
   try {
     const { username } = req.params;
     const { pin } = req.body;
@@ -147,7 +151,7 @@ authRouter.post("/api/loginUsingPin/:username", async (req, res) => {
   }
 });
 
-authRouter.post("/api/changePin/:username", async (req, res) => {
+authRouter.post("/api/changePin/:username", auth, async (req, res) => {
   try {
     const { username } = req.params;
     const { oldPin, newPin } = req.body;
