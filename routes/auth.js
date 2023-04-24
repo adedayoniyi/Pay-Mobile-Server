@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const auth = require("../middlewares/auth");
 
-authRouter.post("/api/createUser", auth, async (req, res) => {
+authRouter.post("/api/createUser", async (req, res) => {
   try {
     const { fullname, username, email, password } = req.body;
     const userExists = await User.findOne({ username });
@@ -39,7 +39,7 @@ authRouter.post("/api/createUser", auth, async (req, res) => {
   }
 });
 
-authRouter.post("/api/login", auth, async (req, res) => {
+authRouter.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
