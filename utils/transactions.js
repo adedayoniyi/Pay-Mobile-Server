@@ -6,11 +6,12 @@ const creditAccount = async ({
   username,
   purpose,
   reference,
-  summary,
-  trnxSummary,
+  description,
   session,
+  sendersName,
 }) => {
   const user = await User.findOne({ username });
+
   if (!user) {
     return {
       status: false,
@@ -24,6 +25,7 @@ const creditAccount = async ({
     { $inc: { balance: amount } },
     { session }
   );
+  const sendersFullName = await User.findOne({ username: sendersName });
   const transaction = await Transactions.create(
     [
       {
@@ -34,8 +36,8 @@ const creditAccount = async ({
         reference,
         balanceBefore: Number(user.balance),
         balanceAfter: Number(user.balance) + Number(amount),
-        summary,
-        trnxSummary,
+        description,
+        sendersName: sendersFullName.fullname,
       },
     ],
     { session }
@@ -54,11 +56,12 @@ const debitAccount = async ({
   username,
   purpose,
   reference,
-  summary,
-  trnxSummary,
+  description,
   session,
+  recipientName,
 }) => {
   const user = await User.findOne({ username });
+
   if (!user) {
     return {
       status: false,
@@ -80,6 +83,7 @@ const debitAccount = async ({
     { $inc: { balance: -amount } },
     { session }
   );
+  const recipientFullName = await User.findOne({ username: recipientName });
   const transaction = await Transactions.create(
     [
       {
@@ -90,8 +94,8 @@ const debitAccount = async ({
         reference,
         balanceBefore: Number(user.balance),
         balanceAfter: Number(user.balance) - Number(amount),
-        summary,
-        trnxSummary,
+        description,
+        recipientName: recipientFullName.fullname,
       },
     ],
     { session }

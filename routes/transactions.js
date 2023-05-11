@@ -11,34 +11,35 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const { toUsername, fromUsername, amount, summary } = req.body;
+    const { recipientsUsername, sendersUsername, amount, description } =
+      req.body;
     const reference = v4();
-    if (!toUsername && !fromUsername && !amount && !summary) {
+    if (!recipientsUsername && !sendersUsername && !amount && !description) {
       return res.status(409).json({
-        status: false,
-        message:
-          "Please provide the following details: toUsername,fromUsername, amount, summary",
+        message: `Please provide the following details: ${recipientsUsername},${sendersUsername}, ${amount}, ${description}`,
       });
     }
+    //const sendersFullName = await User.findOne({ sendersUsername });
+    //const recipientFullName = await User.findOne({ recipientsUsername });
 
     const transferResult = await Promise.all([
       debitAccount({
         amount,
-        username: fromUsername,
-        purpose: "transfer",
+        username: sendersUsername,
+        purpose: "Transfer",
         reference,
-        summary,
-        trnxSummary: `TRFR TO:${toUsername}. TRNX REF:${reference}`,
+        description,
         session,
+        recipientName: recipientsUsername,
       }),
       creditAccount({
         amount,
-        username: toUsername,
-        purpose: "transfer",
+        username: recipientsUsername,
+        purpose: "Transfer",
         reference,
-        summary,
-        trnxSummary: `TRFR FROM:${fromUsername}. TRNX REF:${reference}`,
+        description,
         session,
+        sendersName: sendersUsername,
       }),
     ]);
 
@@ -49,7 +50,6 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
       const errors = failedTxns.map((a) => a.message);
       await session.abortTransaction();
       return res.status(409).json({
-        status: false,
         message: errors,
       });
     }
@@ -58,7 +58,6 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
     session.endSession();
 
     return res.status(201).json({
-      status: true,
       message: "Transfer successful",
       transferResult,
     });
@@ -67,7 +66,6 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
     session.endSession();
 
     return res.status(500).json({
-      status: false,
       message: `Unable to find perform transfer. Please try again. \n Error:${err}`,
     });
   }
