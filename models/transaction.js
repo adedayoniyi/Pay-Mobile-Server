@@ -33,14 +33,14 @@ const transactionSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    recipientName: {
+    fullNameTransactionEntity: {
       type: String,
       ref: "User",
     },
-    sendersName: {
-      type: String,
-      ref: "User",
-    },
+    // sendersName: {
+    //   type: String,
+    //   ref: "User",
+    // },
     description: {
       type: String,
       required: true,

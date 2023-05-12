@@ -7,7 +7,7 @@ const { creditAccount, debitAccount } = require("../utils/transactions");
 const User = require("../models/user");
 const auth = require("../middlewares/auth");
 
-transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
+transactionRouter.post("/api/transactions/transfer", async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -30,7 +30,7 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
         reference,
         description,
         session,
-        recipientName: recipientsUsername,
+        fullNameTransactionEntity: recipientsUsername,
       }),
       creditAccount({
         amount,
@@ -39,7 +39,7 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
         reference,
         description,
         session,
-        sendersName: sendersUsername,
+        fullNameTransactionEntity: sendersUsername,
       }),
     ]);
 
@@ -66,7 +66,7 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
     session.endSession();
 
     return res.status(500).json({
-      message: `Unable to find perform transfer. Please try again. \n Error:${err}`,
+      message: `Unable to perform transfer. Please try again. \n Error:${err}`,
     });
   }
 });

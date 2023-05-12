@@ -5,12 +5,14 @@ dotenv.config();
 const authRouter = require("./routes/auth");
 const balanceRouter = require("./routes/balance");
 const transactionRouter = require("./routes/transactions");
+const notificationsRouter = require("./routes/notifications");
 
 const app = express();
 app.use(express.json());
 app.use(authRouter);
 app.use(transactionRouter);
 app.use(balanceRouter);
+app.use(notificationsRouter);
 
 mongoose
   .connect(process.env.DATABASE_URL, {

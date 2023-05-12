@@ -8,7 +8,7 @@ const creditAccount = async ({
   reference,
   description,
   session,
-  sendersName,
+  fullNameTransactionEntity,
 }) => {
   const user = await User.findOne({ username });
 
@@ -25,7 +25,9 @@ const creditAccount = async ({
     { $inc: { balance: amount } },
     { session }
   );
-  const sendersFullName = await User.findOne({ username: sendersName });
+  const sendersFullName = await User.findOne({
+    username: fullNameTransactionEntity,
+  });
   const transaction = await Transactions.create(
     [
       {
@@ -37,7 +39,7 @@ const creditAccount = async ({
         balanceBefore: Number(user.balance),
         balanceAfter: Number(user.balance) + Number(amount),
         description,
-        sendersName: sendersFullName.fullname,
+        fullNameTransactionEntity: sendersFullName.fullname,
       },
     ],
     { session }
@@ -58,7 +60,7 @@ const debitAccount = async ({
   reference,
   description,
   session,
-  recipientName,
+  fullNameTransactionEntity,
 }) => {
   const user = await User.findOne({ username });
 
@@ -83,7 +85,9 @@ const debitAccount = async ({
     { $inc: { balance: -amount } },
     { session }
   );
-  const recipientFullName = await User.findOne({ username: recipientName });
+  const recipientFullName = await User.findOne({
+    username: fullNameTransactionEntity,
+  });
   const transaction = await Transactions.create(
     [
       {
@@ -95,7 +99,7 @@ const debitAccount = async ({
         balanceBefore: Number(user.balance),
         balanceAfter: Number(user.balance) - Number(amount),
         description,
-        recipientName: recipientFullName.fullname,
+        fullNameTransactionEntity: recipientFullName.fullname,
       },
     ],
     { session }
