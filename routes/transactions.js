@@ -6,8 +6,9 @@ const Transactions = require("../models/transaction");
 const { creditAccount, debitAccount } = require("../utils/transactions");
 const User = require("../models/user");
 const auth = require("../middlewares/auth");
+const Notifications = require("../models/notifications_model");
 
-transactionRouter.post("/api/transactions/transfer", async (req, res) => {
+transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -57,6 +58,19 @@ transactionRouter.post("/api/transactions/transfer", async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
+    const transactions = await Transactions.find({
+      username: recipientsUsername,
+      trnxType: "Credit",
+    });
+    let showTransactionsFromRecentToLast = transactions.reverse();
+    let notifications = await Notifications.create({
+      username: showTransactionsFromRecentToLast[0].username,
+      trnxType: showTransactionsFromRecentToLast[0].trnxType,
+      amount: showTransactionsFromRecentToLast[0].amount,
+      sendersName:
+        showTransactionsFromRecentToLast[0].fullNameTransactionEntity,
+    });
+    notifications = await notifications.save();
     return res.status(201).json({
       message: "Transfer successful",
       transferResult,

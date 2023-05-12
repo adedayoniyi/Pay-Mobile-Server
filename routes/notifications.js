@@ -11,20 +11,9 @@ notificationsRouter.get(
   async (req, res) => {
     try {
       const { username } = req.params;
-      const transactions = await Transactions.find({
-        username: username,
-        trnxType: "Credit",
-      });
-      let showTransactionsFromRecentToLast = transactions.reverse();
-      let notifications = await Notifications.create({
-        username: showTransactionsFromRecentToLast[0].username,
-        trnxType: showTransactionsFromRecentToLast[0].trnxType,
-        amount: showTransactionsFromRecentToLast[0].amount,
-        sendersName:
-          showTransactionsFromRecentToLast[0].fullNameTransactionEntity,
-      });
-      notifications = await notifications.save();
-      res.status(200).json(notifications);
+      const notifications = await Notifications.find({ username: username });
+      let showNotificationsFromRecentToLast = notifications.reverse();
+      res.status(200).json(showNotificationsFromRecentToLast[0]);
     } catch (e) {
       res.status(500).json({ message: e.message });
     }
@@ -33,7 +22,7 @@ notificationsRouter.get(
 notificationsRouter.post("/api/deleteNotification", auth, async (req, res) => {
   try {
     const { username } = req.body;
-    await Notifications.findOneAndDelete({ username });
+    await Notifications.deleteMany({ username });
     res.status(200).json({ message: "Deleted Successfully" });
   } catch (e) {
     res.status(500).json({ message: e.message });
