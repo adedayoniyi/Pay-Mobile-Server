@@ -2,10 +2,10 @@ const express = require("express");
 const transactionRouter = express.Router();
 const mongoose = require("mongoose");
 const { v4 } = require("uuid");
-const Transactions = require("../models/transaction");
+const Transactions = require("../models/transaction_model");
 const { creditAccount, debitAccount } = require("../utils/transactions");
-const User = require("../models/user");
-const auth = require("../middlewares/auth");
+const User = require("../models/user_model");
+const auth = require("../middlewares/auth_middleware");
 const Notifications = require("../models/notifications_model");
 
 transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {

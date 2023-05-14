@@ -1,7 +1,7 @@
 const express = require("express");
-const Transactions = require("../models/transaction");
+const Transactions = require("../models/transaction_model");
 const Notifications = require("../models/notifications_model");
-const auth = require("../middlewares/auth");
+const auth = require("../middlewares/auth_middleware");
 
 const notificationsRouter = express.Router();
 
