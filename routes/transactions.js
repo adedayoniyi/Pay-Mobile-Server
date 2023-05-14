@@ -12,17 +12,17 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
+    // Get the request body data
     const { recipientsUsername, sendersUsername, amount, description } =
       req.body;
+    // Generate a reference number
     const reference = v4();
-    if (!recipientsUsername && !sendersUsername && !amount && !description) {
+    if (!recipientsUsername || !sendersUsername || !amount || !description) {
+      await session.endSession();
       return res.status(409).json({
         message: `Please provide the following details: ${recipientsUsername},${sendersUsername}, ${amount}, ${description}`,
       });
     }
-    //const sendersFullName = await User.findOne({ sendersUsername });
-    //const recipientFullName = await User.findOne({ recipientsUsername });
-
     const transferResult = await Promise.all([
       debitAccount({
         amount,
@@ -44,40 +44,47 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
       }),
     ]);
 
+    // Filter out any failed operations
     const failedTxns = transferResult.filter(
       (result) => result.status !== true
     );
     if (failedTxns.length) {
       const errors = failedTxns.map((a) => a.message);
       await session.abortTransaction();
+      await session.endSession();
       return res.status(409).json({
         message: errors,
       });
     }
 
+    // If everything is successful, commit the transaction and end the session
     await session.commitTransaction();
-    session.endSession();
+    await session.endSession();
 
+    // Find the latest transaction for the recipient and create a notification for it
     const transactions = await Transactions.find({
       username: recipientsUsername,
       trnxType: "Credit",
-    });
-    let showTransactionsFromRecentToLast = transactions.reverse();
+    })
+      .sort({ createdAt: -1 })
+      .limit(1);
+
     let notifications = await Notifications.create({
-      username: showTransactionsFromRecentToLast[0].username,
-      trnxType: showTransactionsFromRecentToLast[0].trnxType,
-      amount: showTransactionsFromRecentToLast[0].amount,
-      sendersName:
-        showTransactionsFromRecentToLast[0].fullNameTransactionEntity,
+      username: transactions[0].username,
+      trnxType: transactions[0].trnxType,
+      amount: transactions[0].amount,
+      sendersName: transactions[0].fullNameTransactionEntity,
     });
     notifications = await notifications.save();
+
     return res.status(201).json({
       message: "Transfer successful",
       transferResult,
     });
   } catch (err) {
+    // If there is any error, abort the transaction, end the session and send an error response
     await session.abortTransaction();
-    session.endSession();
+    await session.endSession();
 
     return res.status(500).json({
       message: `Unable to perform transfer. Please try again. \n Error:${err}`,
@@ -105,7 +112,7 @@ transactionRouter.get(
 transactionRouter.post("/api/fundWallet/:username", auth, async (req, res) => {
   try {
     const { username } = req.params;
-    /*please note if this will be used with the futter app,
+    /*please note if this will be used with the flutter app,
     only integers are allowed, no decimals allowed or an error will be thrown*/
     const { amount } = req.body;
     const user = await User.findOne({ username });
