@@ -14,9 +14,8 @@ const creditAccount = async ({
 
   if (!user) {
     return {
-      status: false,
       statusCode: 404,
-      message: `User ${username} dosent exist`,
+      message: `User ${username} isnt recognised`,
     };
   }
 
@@ -46,7 +45,6 @@ const creditAccount = async ({
   );
   console.log(`Credit Successful`);
   return {
-    status: true,
     statusCode: 201,
     message: "Credit Successful",
     data: { updatedWallet, transaction },
@@ -66,15 +64,13 @@ const debitAccount = async ({
 
   if (!user) {
     return {
-      status: false,
       statusCode: 404,
-      message: `User ${username} dosent exist`,
+      message: `User ${username} isnt recognised`,
     };
   }
 
   if (Number(user.balance) < amount) {
     return {
-      status: false,
       statusCode: 400,
       message: `User ${username} has insufficient balance`,
     };
@@ -106,7 +102,6 @@ const debitAccount = async ({
   );
   console.log(`Debit Successful`);
   return {
-    status: true,
     statusCode: 201,
     message: "Debit Successful",
     data: { updatedWallet, transaction },
