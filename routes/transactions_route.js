@@ -98,9 +98,10 @@ transactionRouter.get(
   async (req, res) => {
     try {
       const { username } = req.params;
-      const userTransactions = await Transactions.find({
-        $or: [{ username: username }, { username: username }],
-      });
+      const userTransactions = await Transactions.find({ username: username });
+      if (userTransactions.length === 0) {
+        return res.status(404).json({ message: "No transactions found" });
+      }
       let showTransactionsFromRecentToLast = userTransactions.reverse();
       res.status(200).json(showTransactionsFromRecentToLast);
     } catch (err) {
