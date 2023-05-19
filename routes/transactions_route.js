@@ -19,7 +19,7 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
     const reference = v4();
     if (!recipientsUsername || !sendersUsername || !amount || !description) {
       await session.endSession();
-      return res.status(409).json({
+      return res.status(404).json({
         message: `Please provide the following details: ${recipientsUsername},${sendersUsername}, ${amount}, ${description}`,
       });
     }
@@ -46,7 +46,7 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
 
     // Filter out any failed operations
     const failedTxns = transferResult.filter(
-      (result) => result.status !== true
+      (result) => result.statusCode !== 201
     );
     if (failedTxns.length) {
       const errors = failedTxns.map((a) => a.message);
