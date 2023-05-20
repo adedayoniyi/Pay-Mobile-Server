@@ -53,7 +53,7 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
       await session.abortTransaction();
       await session.endSession();
       return res.status(409).json({
-        message: errors,
+        message: errors.join(" "),
       });
     }
 
