@@ -15,7 +15,7 @@ const creditAccount = async ({
   if (!user) {
     return {
       statusCode: 404,
-      message: `User ${username} isnt recognised`,
+      message: `The username ${username} isnt recognised`,
     };
   }
 
@@ -65,14 +65,14 @@ const debitAccount = async ({
   if (!user) {
     return {
       statusCode: 404,
-      message: `User ${username} isnt recognised`,
+      message: `The username ${username} isnt recognised`,
     };
   }
 
   if (Number(user.balance) < amount) {
     return {
       statusCode: 400,
-      message: `User ${username} has insufficient balance`,
+      message: `You have an insufficient balance`,
     };
   }
 
