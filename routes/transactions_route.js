@@ -110,12 +110,13 @@ transactionRouter.get(
   }
 );
 
-transactionRouter.post("/api/fundWallet/:username", auth, async (req, res) => {
+transactionRouter.post("/api/fundWallet/:username", async (req, res) => {
   try {
     const { username } = req.params;
     /*please note if this will be used with the flutter app,
     only integers are allowed, no decimals allowed or an error will be thrown*/
     const { amount } = req.body;
+    const reference = v4();
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(400).json({ mesage: "User not found!!" });
@@ -129,6 +130,17 @@ transactionRouter.post("/api/fundWallet/:username", auth, async (req, res) => {
       { username },
       { balance: user.balance + amount }
     );
+    await Transactions.create({
+      trnxType: "Wallet Funding",
+      purpose: "Deposit",
+      amount: amount,
+      username: username,
+      reference: reference,
+      balanceBefore: Number(user.balance),
+      balanceAfter: Number(user.balance) + Number(amount),
+      description: "Wallet Funding",
+      fullNameTransactionEntity: user.fullname,
+    });
     res.status(200).json({ message: "Account funded successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });

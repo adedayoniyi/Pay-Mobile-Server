@@ -5,7 +5,7 @@ const transactionSchema = new mongoose.Schema(
     trnxType: {
       type: String,
       required: true,
-      enum: ["Credit", "Debit"],
+      enum: ["Credit", "Debit", "Wallet Funding"],
     },
     purpose: {
       type: String,
