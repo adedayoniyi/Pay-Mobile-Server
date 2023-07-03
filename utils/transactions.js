@@ -121,6 +121,25 @@ const debitAccount = async ({
     { session }
   );
   console.log(`Debit Successful`);
+  const message = {
+    notification: {
+      title: "Debit",
+      body: `You just seent ${amount} to ${fullNameTransactionEntity}`,
+    },
+    token: user.deviceToken,
+  };
+
+  admin
+    .messaging()
+    .send(message)
+    .then((response) => {
+      console.log("Successfully sent message:", response);
+      res.send("Notification sent successfully");
+    })
+    .catch((error) => {
+      console.log("Error sending message:", error);
+      res.status(500).send("Error sending notification");
+    });
   return {
     statusCode: 201,
     message: "Debit Successful",
