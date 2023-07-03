@@ -57,7 +57,11 @@ authRouter.post("/api/login", async (req, res) => {
       });
     }
     const token = await jwt.sign({ id: user._id }, process.env.TOKEN_STRING);
-    await User.findOneAndUpdate({ user }, { deviceToken: deviceToken });
+    await User.findOneAndUpdate(
+      { username },
+      { deviceToken: deviceToken },
+      { new: true }
+    );
     res.status(201).json({
       token,
       ...user._doc,
