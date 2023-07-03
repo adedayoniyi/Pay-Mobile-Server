@@ -1,18 +1,25 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+const admin = require("firebase-admin");
 dotenv.config();
 const authRouter = require("./routes/auth_routes");
 const balanceRouter = require("./routes/balance_routes");
 const transactionRouter = require("./routes/transactions_route");
-const notificationsRouter = require("./routes/notifications_routes");
+const notifications = require("./routes/notification");
+
+var serviceAccount = require("./pay-mobile-ddab3-firebase-adminsdk-i61m1-03b64f75ad.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: process.env.databaseURL,
+});
 
 const app = express();
 app.use(express.json());
 app.use(authRouter);
 app.use(transactionRouter);
 app.use(balanceRouter);
-app.use(notificationsRouter);
+app.use(notifications);
 
 mongoose
   .connect(process.env.DATABASE_URL, {

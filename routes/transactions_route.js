@@ -6,7 +6,6 @@ const Transactions = require("../models/transaction_model");
 const { creditAccount, debitAccount } = require("../utils/transactions");
 const User = require("../models/user_model");
 const auth = require("../middlewares/auth_middleware");
-const Notifications = require("../models/notifications_model");
 
 transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
   const session = await mongoose.startSession();
@@ -60,22 +59,6 @@ transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
     // If everything is successful, commit the transaction and end the session
     await session.commitTransaction();
     await session.endSession();
-
-    // Find the latest transaction for the recipient and create a notification for it
-    const transactions = await Transactions.find({
-      username: recipientsUsername,
-      trnxType: "Credit",
-    })
-      .sort({ createdAt: -1 })
-      .limit(1);
-
-    let notifications = await Notifications.create({
-      username: transactions[0].username,
-      trnxType: transactions[0].trnxType,
-      amount: transactions[0].amount,
-      sendersName: transactions[0].fullNameTransactionEntity,
-    });
-    notifications = await notifications.save();
 
     return res.status(201).json({
       message: "Transfer successful",

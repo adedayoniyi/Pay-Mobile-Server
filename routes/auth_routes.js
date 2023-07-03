@@ -41,7 +41,7 @@ authRouter.post("/api/createUser", async (req, res) => {
 
 authRouter.post("/api/login", async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, deviceToken } = req.body;
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(409).json({
@@ -57,6 +57,7 @@ authRouter.post("/api/login", async (req, res) => {
       });
     }
     const token = await jwt.sign({ id: user._id }, process.env.TOKEN_STRING);
+    await User.findOneAndUpdate({ user }, { deviceToken: deviceToken });
     res.status(201).json({
       token,
       ...user._doc,

@@ -1,5 +1,6 @@
 const Transactions = require("../models/transaction_model");
 const User = require("../models/user_model");
+const admin = require("firebase-admin");
 
 const creditAccount = async ({
   amount,
@@ -44,6 +45,25 @@ const creditAccount = async ({
     { session }
   );
   console.log(`Credit Successful`);
+  const message = {
+    notification: {
+      title: "Credit Successful",
+      body: `You just received ${amount} from ${fullNameTransactionEntity}`,
+    },
+    token: user.deviceToken,
+  };
+
+  admin
+    .messaging()
+    .send(message)
+    .then((response) => {
+      console.log("Successfully sent message:", response);
+      res.send("Notification sent successfully");
+    })
+    .catch((error) => {
+      console.log("Error sending message:", error);
+      res.status(500).send("Error sending notification");
+    });
   return {
     statusCode: 201,
     message: "Credit Successful",
