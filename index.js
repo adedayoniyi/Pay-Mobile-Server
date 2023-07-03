@@ -8,7 +8,7 @@ const balanceRouter = require("./routes/balance_routes");
 const transactionRouter = require("./routes/transactions_route");
 const notifications = require("./routes/notification");
 
-var serviceAccount = require("./pay-mobile-ddab3-firebase-adminsdk-i61m1-03b64f75ad.json");
+var serviceAccount = require("./pay-mobile-firebase-adminsdk.json");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: process.env.databaseURL,
