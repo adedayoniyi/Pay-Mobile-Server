@@ -58,11 +58,9 @@ const creditAccount = async ({
     .send(message)
     .then((response) => {
       console.log("Successfully sent message:", response);
-      res.send("Notification sent successfully");
     })
     .catch((error) => {
       console.log("Error sending message:", error);
-      res.status(500).send("Error sending notification");
     });
   return {
     statusCode: 201,
@@ -134,11 +132,9 @@ const debitAccount = async ({
     .send(message)
     .then((response) => {
       console.log("Successfully sent message:", response);
-      res.send("Notification sent successfully");
     })
     .catch((error) => {
       console.log("Error sending message:", error);
-      res.status(500).send("Error sending notification");
     });
   return {
     statusCode: 201,

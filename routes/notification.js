@@ -4,7 +4,7 @@ const admin = require("firebase-admin");
 
 router.post("/api/send", async (req, res) => {
   const registrationToken =
-    "dtenP8cuR6KyyObGQWfucn:APA91bG16AAUAIimqQA8TPc9PSeHSkH3STovgR2aKkY1Yrh7edDkc3VNlFvfyNuo_yfMaWc-lANeiQWlBlj059OAOqqiI_dCCnQFoABtiDlPM3pF21EsJpDYcmJAL5uTbDcY41qqncqT";
+    "fv-wZayUSoKqIGgLuBrZ98:APA91bEQFucnUXYs_PwC9O3EbmCEaJYlhBQrtJnJTsOMx5RE-MT3IoLT9gaB-AKdqtZ9jxYgBI5cOlXrO58HAf1BZEYGLFf77iPtWklPnsNuv3uxuJWXNotzwWiwJ62bMfPjfA5ELWxG";
 
   const message = {
     notification: {
