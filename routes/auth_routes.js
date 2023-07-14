@@ -123,7 +123,7 @@ authRouter.post("/api/verifyOtp", async (req, res) => {
         if (otpCode == rOtp) {
           return res.status(200).json({
             status: "success",
-            message: "OTP successfully confirmed!",
+            message: "OTP successfully confirmed!. Please Login",
           });
         } else {
           return res
@@ -229,12 +229,21 @@ authRouter.post("/api/forgortPassword", async (req, res) => {
   }
 });
 
-authRouter.post("/api/changePassword/:username", async (req, res) => {
+// This endpoint should only be used once the forgort password returns a 200 OK
+authRouter.post("/api/changePassword/:email", async (req, res) => {
   try {
-    const { username } = req.params.username;
-    const { password } = req.body;
+    const { email } = req.params.email;
+    const { password, confirmPassword } = req.body;
     const hashedPassword = await bcryptjs.hash(password, 8);
-    await User.findOneAndUpdate({ username }, { password: hashedPassword });
+    const hashedConfirmPassword = await bcryptjs.hash(confirmPassword, 8);
+    const isMatch = await bcryptjs.compare(
+      hashedPassword,
+      hashedConfirmPassword
+    );
+    if (!isMatch) {
+      res.status(400).json({ message: "Passwords do not match" });
+    }
+    await User.findOneAndUpdate({ email }, { password: hashedPassword });
     res.status(200).json({ message: "Password changed successfully" });
   } catch (e) {
     res.status(500).json({ message: e.message });

@@ -130,4 +130,25 @@ transactionRouter.post("/api/fundWallet/:username", async (req, res) => {
   }
 });
 
+transactionRouter.get(
+  "/admin/getTotalNumberOfTransactions",
+  async (req, res) => {
+    try {
+      const transactions = await Transactions.countDocuments({});
+      res.status(200).json(transactions);
+    } catch (e) {
+      res.status(500).json({ message: e.message });
+    }
+  }
+);
+
+transactionRouter.get("/admin/getAllUserTransactions", async (req, res) => {
+  try {
+    const transactions = await Transactions.find({});
+    res.status(200).json(transactions);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
 module.exports = transactionRouter;

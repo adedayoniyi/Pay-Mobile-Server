@@ -6,7 +6,8 @@ dotenv.config();
 const authRouter = require("./routes/auth_routes");
 const balanceRouter = require("./routes/balance_routes");
 const transactionRouter = require("./routes/transactions_route");
-const notifications = require("./routes/notification");
+const notifications = require("./routes/notification_routes");
+const userRouter = require("./routes/user_routes");
 
 const serviceAccountPath =
   "./pay-mobile-firebase-adminsdk.json" ||
@@ -23,6 +24,7 @@ app.use(authRouter);
 app.use(transactionRouter);
 app.use(balanceRouter);
 app.use(notifications);
+app.use(userRouter);
 
 mongoose
   .connect(process.env.DATABASE_URL, {

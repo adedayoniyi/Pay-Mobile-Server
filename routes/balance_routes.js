@@ -14,4 +14,15 @@ balanceRouter.get("/api/balance/:username", auth, async (req, res) => {
   }
 });
 
+balanceRouter.get("/admin/getTotalUserBalance", async (req, res) => {
+  try {
+    const totalBalance = await User.aggregate([
+      { $group: { _id: null, total: { $sum: "$balance" } } },
+    ]);
+    res.json(totalBalance[0].total);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = balanceRouter;
