@@ -8,7 +8,7 @@ const balanceRouter = require("./routes/balance_routes");
 const transactionRouter = require("./routes/transactions_route");
 const notifications = require("./routes/notification_routes");
 const userRouter = require("./routes/user_routes");
-var cors = require("cors");
+const cors = require("cors");
 
 const serviceAccountPath =
   "./pay-mobile-firebase-adminsdk.json" ||
