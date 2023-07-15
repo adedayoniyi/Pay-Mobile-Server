@@ -339,4 +339,29 @@ authRouter.post("/api/changePin/:username", auth, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+authRouter.post("/admin/loginAdmin", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User Not Found" });
+    }
+    if (user.type != "admin" && user.type != "agent") {
+      return res.status(401).json({ message: "Access Denied!" });
+    }
+    const isMatch = await bcryptjs.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ massage: "Incorrect Password" });
+    }
+    const token = await jwt.sign({ id: user._id }, process.env.TOKEN_STRING);
+
+    res.status(200).json({
+      token,
+      ...user._doc,
+    });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
 module.exports = authRouter;
