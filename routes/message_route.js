@@ -1,6 +1,6 @@
 const express = require("express");
-const Chat = require("../models/Chat");
-const Message = require("../models/Message");
+const Chat = require("../models/chat_model");
+const Message = require("../models/message_model");
 const messageRouter = express.Router();
 
 messageRouter.get("/chat/:chatId/messages", async (req, res) => {

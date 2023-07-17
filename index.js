@@ -9,8 +9,8 @@ const transactionRouter = require("./routes/transactions_route");
 const notifications = require("./routes/notification_routes");
 const userRouter = require("./routes/user_routes");
 const cors = require("cors");
-const Message = require("./models/Message");
-const Chat = require("./models/Chat");
+const Message = require("./models/message_model");
+const Chat = require("./models/chat_model");
 const chatRouter = require("./routes/chat_route");
 const messageRouter = require("./routes/message_route");
 
