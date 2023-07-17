@@ -11,6 +11,15 @@ userRouter.get("/admin/getAllUsers", async (req, res) => {
   }
 });
 
+userRouter.get("/admin/getAllUsers", async (req, res) => {
+  try {
+    const totalNumberOfUsers = await User.countDocuments({});
+    res.status(200).json(totalNumberOfUsers);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
 userRouter.delete("/admin/deleteUser/:username", async (req, res) => {
   try {
     const { username } = req.header;

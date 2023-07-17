@@ -9,6 +9,10 @@ const transactionRouter = require("./routes/transactions_route");
 const notifications = require("./routes/notification_routes");
 const userRouter = require("./routes/user_routes");
 const cors = require("cors");
+const Message = require("./models/Message");
+const Chat = require("./models/Chat");
+const chatRouter = require("./routes/chat_route");
+const messageRouter = require("./routes/message_route");
 
 const serviceAccountPath =
   "./pay-mobile-firebase-adminsdk.json" ||
@@ -27,6 +31,8 @@ app.use(transactionRouter);
 app.use(balanceRouter);
 app.use(notifications);
 app.use(userRouter);
+app.use(chatRouter);
+app.use(messageRouter);
 
 mongoose
   .connect(process.env.DATABASE_URL, {
@@ -42,6 +48,30 @@ mongoose
 
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, "0.0.0.0", () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server listening on port ${PORT}`);
+});
+
+const io = require("socket.io")(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: "",
+  },
+});
+
+io.on("connection", (socket) => {
+  socket.on("join", ({ chatId }) => {
+    socket.join(chatId);
+  });
+
+  socket.on("sendMessage", async ({ chatId, sender, content, receiver }) => {
+    try {
+      const message = new Message({ sender, content, receiver, chat: chatId });
+      await message.save();
+      await Chat.findByIdAndUpdate(chatId, { latestMessage: message });
+      io.to(chatId).emit("message", message);
+    } catch (error) {
+      console.error(error);
+    }
+  });
 });

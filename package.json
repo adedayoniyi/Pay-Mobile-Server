@@ -18,6 +18,7 @@
     "mongoose": "^7.0.2",
     "nodemailer": "^6.9.3",
     "otp-generator": "^4.0.1",
+    "socket.io": "^4.6.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
