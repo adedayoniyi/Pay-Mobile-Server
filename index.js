@@ -53,7 +53,7 @@ const server = app.listen(PORT, "0.0.0.0", () => {
 });
 
 const io = require("socket.io")(server, {
-  pingTimeout: 60000,
+  pingTimeout: 120000,
   cors: {
     origin: "https://transfer-dayo-niyi.onrender.com",
   },
