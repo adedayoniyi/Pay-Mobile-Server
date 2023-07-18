@@ -68,7 +68,7 @@ io.on("connection", (socket) => {
     try {
       const message = new Message({ sender, content, receiver, chat: chatId });
       await message.save();
-      await Chat.findByIdAndUpdate(chatId, { latestMessage: message });
+      await Chat.findByIdAndUpdate(chatId, { latestMessage: content });
       io.to(chatId).emit("message", message);
     } catch (error) {
       console.error(error);
