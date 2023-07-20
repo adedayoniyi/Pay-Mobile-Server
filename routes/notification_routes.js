@@ -28,7 +28,7 @@ router.post("/admin/sendPushNotifications", async (req, res) => {
       .sendEachForMulticast(messages)
       .then((response) => {
         console.log("Successfully sent messages:", response);
-        res.send("Notifications sent successfully");
+        res.status(200).json({ message: "Notifications sent successfully" });
       })
       .catch((error) => {
         console.log("Error sending messages:", error);
