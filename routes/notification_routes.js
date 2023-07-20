@@ -5,10 +5,16 @@ const User = require("../models/user_model");
 
 router.post("/admin/sendPushNotifications", async (req, res) => {
   try {
-    const title = req.body;
-    const body = req.body;
+    const { title, body } = req.body;
+
     const usersTokens = await User.find().exec();
-    const registrationTokens = usersTokens.map((user) => user.deviceToken);
+    let registrationTokens = usersTokens.map((user) => user.deviceToken);
+    registrationTokens = registrationTokens.filter(
+      (token) => token !== null && token !== undefined && token !== ""
+    );
+
+    console.log(registrationTokens);
+
     const messages = {
       tokens: registrationTokens,
       notification: {

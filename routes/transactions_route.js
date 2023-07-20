@@ -152,4 +152,46 @@ transactionRouter.get("/admin/getAllUserTransactions", async (req, res) => {
   }
 });
 
+transactionRouter.get("/admin/getNumberOfWalletFundings", async (req, res) => {
+  try {
+    res.header("Access-Control-Allow-Origin", "*"); // allow any origin
+    const transactions = await Transactions.find({
+      trnxType: "Wallet Funding",
+    });
+    res.status(200).json(transactions.length);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
+transactionRouter.get(
+  "/admin/getNumberOfCreditTransactions",
+  async (req, res) => {
+    try {
+      res.header("Access-Control-Allow-Origin", "*"); // allow any origin
+      const transactions = await Transactions.find({
+        trnxType: "Credit",
+      });
+      res.status(200).json(transactions.length);
+    } catch (e) {
+      res.status(500).json({ message: e.message });
+    }
+  }
+);
+
+transactionRouter.get(
+  "/admin/getNumberOfDebitTransactions",
+  async (req, res) => {
+    try {
+      res.header("Access-Control-Allow-Origin", "*"); // allow any origin
+      const transactions = await Transactions.find({
+        trnxType: "Debit",
+      });
+      res.status(200).json(transactions.length);
+    } catch (e) {
+      res.status(500).json({ message: e.message });
+    }
+  }
+);
+
 module.exports = transactionRouter;

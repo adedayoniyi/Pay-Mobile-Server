@@ -2,7 +2,7 @@ const express = require("express");
 const User = require("../models/user_model");
 const userRouter = express.Router();
 
-userRouter.get("/admin/getAllUsers", async (req, res) => {
+userRouter.get("/admin/getTotalNumberOfAllUsers", async (req, res) => {
   try {
     const totalNumberOfUsers = await User.countDocuments({});
     res.status(200).json(totalNumberOfUsers);
@@ -13,8 +13,8 @@ userRouter.get("/admin/getAllUsers", async (req, res) => {
 
 userRouter.get("/admin/getAllUsers", async (req, res) => {
   try {
-    const totalNumberOfUsers = await User.countDocuments({});
-    res.status(200).json(totalNumberOfUsers);
+    const allUsers = await User.find({});
+    res.status(200).json(allUsers);
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
