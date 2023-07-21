@@ -62,7 +62,6 @@ userRouter.post("/admin/createAdmin", async (req, res) => {
 
     return res.status(201).json({
       message: "Admin created successfully",
-      message: user,
     });
   } catch (e) {
     return res.status(500).json({
