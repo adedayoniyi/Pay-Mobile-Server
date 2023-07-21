@@ -8,6 +8,7 @@ const OTPSchema = require("../models/otp_model");
 
 const User = require("../models/user_model");
 const auth = require("../middlewares/auth_middleware");
+const AdminAuthPin = require("../models/admin_auth_pin_model");
 
 var expiryDate = Date.now() + 120000;
 let transporter = nodemailer.createTransport({
@@ -358,6 +359,41 @@ authRouter.post("/admin/loginAdmin", async (req, res) => {
       token,
       ...user._doc,
     });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
+authRouter.post("/admin/createAuthorizationPin", async (req, res) => {
+  try {
+    const { adminAuthPin, admin } = req.body;
+    const hashedPin = await bcryptjs.hash(adminAuthPin, 8);
+    const newPin = new AdminAuthPin({
+      admin: admin,
+      pin: hashedPin,
+    });
+    await newPin.save();
+    res.status(200).json({ message: "Admin Auth Pin Created Successfully" });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
+authRouter.post("/admin/changeAdminAuthPin", async (req, res) => {
+  try {
+    const { oldAdminAuthPin, newAdminAuthPin, admin } = req.body;
+    const adminUsername = await AdminAuthPin.findOne({ admin: admin });
+    if (!adminUsername) {
+      return res.status(400).json({ message: "Admin Not found" });
+    }
+    const isMatch = await bcryptjs.compare(oldAdminAuthPin, adminUsername.pin);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ message: "Incorrect Old Authorization Pin" });
+    }
+    await AdminAuthPin.findOneAndUpdate({ pin: newAdminAuthPin });
+    res.status(200).json({ message: "Admin Auth Pin Updated Successfully" });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
