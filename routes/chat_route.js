@@ -6,25 +6,62 @@ const chatRouter = express.Router();
 chatRouter.post("/chat", async (req, res) => {
   const { sender, receiver, chatName } = req.body;
   try {
+    const senderUser = await User.findOne({ username: sender });
+    if (senderUser.type !== "user") {
+      return res.status(400).json({ message: "Only users can create chats" });
+    }
     const chat = await Chat.findOne({
       $or: [
         { $and: [{ sender: sender }, { receiver: receiver }] },
         { $and: [{ sender: receiver }, { receiver: sender }] },
       ],
     });
-    const user = await User.find({
-      $or: [{ username: sender }, { username: receiver }],
-    });
-    if (user.length !== 2) {
-      return res.status(400).json({ message: "Users not found" });
-    }
     if (!chat) {
-      const newChat = new Chat({ sender, receiver, chatName });
+      const agents = await User.find({ type: "agent" });
+      if (agents.length === 0) {
+        return res.status(400).json({ message: "No agents found" });
+      }
+      const randomAgent = agents[Math.floor(Math.random() * agents.length)];
+      const newChat = new Chat({
+        sender,
+        receiver: randomAgent.username,
+        chatName,
+      });
       await newChat.save();
+      const initialMessage = new Message({
+        sender: sender,
+        content:
+          "Welcome to Pay Mobile customer support center, send us a message and we will reply as soon as possible",
+        receiver: randomAgent.username,
+        chat: newChat._id,
+      });
+      await initialMessage.save();
+
       res.status(201).json(newChat);
     } else {
       res.status(200).json(chat);
     }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+chatRouter.get("/admin/getAllChats", async (req, res) => {
+  try {
+    const allChats = await Chat.find({});
+    res.status(200).json(allChats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+chatRouter.get("/admin/getAgentChat/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const agentChat = await Chat.find({ receiver: username });
+    if (agentChat.length == 0) {
+      return res.status(400).json({ message: "No chats found" });
+    }
+    res.status(200).json(agentChat);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

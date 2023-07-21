@@ -30,4 +30,43 @@ userRouter.delete("/admin/deleteUser/:username", async (req, res) => {
   }
 });
 
+userRouter.get("/admin/getAllAdmin", async (req, res) => {
+  try {
+    const allAdmins = await User.find({ type: "admin" || "agent" });
+    res.status(200).json(allAdmins);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
+userRouter.post("/admin/createAdmin", async (req, res) => {
+  try {
+    const { fullname, username, email, password, type } = req.body;
+    const userExists = await User.findOne({ username });
+    if (userExists) {
+      return res.status(400).json({
+        message: "Admin already exists",
+      });
+    }
+    const hashedPassword = await bcryptjs.hash(password, 8);
+    let user = new User({
+      fullname: fullname,
+      username: username,
+      email: email,
+      password: hashedPassword,
+      type: type,
+    });
+    user = await user.save();
+
+    return res.status(201).json({
+      message: "Admin created successfully",
+      message: user,
+    });
+  } catch (e) {
+    return res.status(500).json({
+      message: `Unable to create admin. Please try again.\n Error:${e}`,
+    });
+  }
+});
+
 module.exports = userRouter;

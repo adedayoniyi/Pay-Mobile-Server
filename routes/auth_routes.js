@@ -38,7 +38,7 @@ authRouter.post("/api/createUser", async (req, res) => {
     const { fullname, username, email, password } = req.body;
     const userExists = await User.findOne({ username });
     if (userExists) {
-      return res.status(409).json({
+      return res.status(400).json({
         status: false,
         message: "User already exists",
       });
@@ -53,13 +53,11 @@ authRouter.post("/api/createUser", async (req, res) => {
     user = await user.save();
 
     return res.status(201).json({
-      status: true,
       message: "User created successfully",
-      data: user,
+      message: user,
     });
   } catch (e) {
     return res.status(500).json({
-      status: false,
       message: `Unable to create user. Please try again.\n Error:${e}`,
     });
   }
