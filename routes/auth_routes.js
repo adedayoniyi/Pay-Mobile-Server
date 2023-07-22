@@ -5,10 +5,11 @@ const jwt = require("jsonwebtoken");
 const otpGenerator = require("otp-generator");
 const nodemailer = require("nodemailer");
 const OTPSchema = require("../models/otp_model");
-
 const User = require("../models/user_model");
 const auth = require("../middlewares/auth_middleware");
 const AdminAuthPin = require("../models/admin_auth_pin_model");
+const { admin, agent } = require("../middlewares/admin_middleware");
+
 var expiryDate = Date.now() + 120000;
 let transporter = nodemailer.createTransport({
   service: "gmail",
@@ -60,15 +61,32 @@ authRouter.post("/api/createUser", async (req, res) => {
     });
   }
 });
-authRouter.post("/api/signUpVerification", async (req, res) => {
+authRouter.post("/api/sendOtp/:sendPurpose", async (req, res) => {
   try {
+    const { sendPurpose } = req.params;
     const { email } = req.body;
     const user = await User.findOne({ email });
+    let purpose = "";
+    if (sendPurpose == "sign-up-verification") {
+      purpose = "OTP Code To Confirm SignUp";
+    } else if (sendPurpose == "forgort-password") {
+      purpose = "OTP Code To Verify Account(Forgort Password)";
+    } else if (sendPurpose == "forgort-pin") {
+      purpose = "OTP Code To Verify Account(Forgort Pin)";
+    } else {
+      purpose = "";
+    }
     let mailOptions = {
       from: "adedayoniyio@gmail.com",
       to: email,
-      subject: "OTP To Complete Your Signup",
-      html: `<html> <h1>Hi,</h1> <br/><p style="color:grey; font-size:1.2em">Please use the below OTP code to complete your account setup on My App</p><br><br><h1 style="color:orange">${code}</h1></html>`,
+      subject: purpose,
+      html: `<html>
+      <img src="https://res.cloudinary.com/dq60qoglh/image/upload/v1690057200/quzabl5mmq7i0n73lnxx.png" alt="Pay Mobile Logo">
+      <h1>Hi ,</h1>
+      <p style="color:grey; font-size:1.2em">Please use the below ${purpose}</p>
+        <h3 style="color:#B3E0B8">${code}</h3>
+      <p style="color:grey; font-size:1em">If you did not initiate this login attempt, we strongly recommend contacting us through the in app support.</p>
+        </html>`,
     };
     console.log(`DATE: ${expiryDate}`);
     await transporter.sendMail(mailOptions);
@@ -82,6 +100,7 @@ authRouter.post("/api/signUpVerification", async (req, res) => {
       console.log("OTP deleted successfully");
     }, expiryDate - Date.now());
 
+    await User.findOneAndUpdate({ username }, { isVerified: true });
     return res.status(200).json({
       message: "OTP has been sent to the provided email.",
     });
@@ -180,43 +199,8 @@ authRouter.get("/", auth, async (req, res) => {
   res.json({ ...user._doc, token: req.token });
 });
 
-authRouter.post("/api/forgortPassword", async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    let mailOptions = {
-      from: "adedayoniyio@gmail.com",
-      to: email,
-      subject: "OTP To Change Your Password",
-      html: `<html> <h1>Hi,</h1> <br/><p style="color:grey; font-size:1.2em">Please use the below OTP code to change your password</p><br><br><h1 style="color:orange">${code}</h1></html>`,
-    };
-
-    console.log(`DATE: ${expiryDate}`);
-
-    await transporter.sendMail(mailOptions);
-    await OTPSchema.create({
-      email: email,
-      otp: code,
-      expiry: expiryDate,
-    });
-    setTimeout(async () => {
-      // Delete the document with the matching email and otp
-      await OTPSchema.deleteOne({ email: email, otp: code });
-      console.log("OTP deleted successfully");
-    }, expiryDate - Date.now());
-
-    return res.status(200).json({
-      message: "OTP has been sent to the provided email.",
-    });
-  } catch (e) {
-    return res.status(500).json({
-      message: `Unknown error occured:${e}`,
-    });
-  }
-});
-
 // This endpoint should only be used once the forgort password returns a 200 OK
-authRouter.post("/api/changePassword/:email", async (req, res) => {
+authRouter.post("/api/changePassword/:email", auth, async (req, res) => {
   try {
     const { email } = req.params.email;
     const { password, confirmPassword } = req.body;
@@ -326,7 +310,7 @@ authRouter.post("/api/changePin/:username", auth, async (req, res) => {
   }
 });
 
-authRouter.post("/admin/loginAdmin", async (req, res) => {
+authRouter.post("/admin/loginAdmin", admin || agent, async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -351,7 +335,7 @@ authRouter.post("/admin/loginAdmin", async (req, res) => {
   }
 });
 
-authRouter.post("/admin/createAuthorizationPin", async (req, res) => {
+authRouter.post("/admin/createAuthorizationPin", admin, async (req, res) => {
   try {
     const { adminAuthPin, admin } = req.body;
     const hashedPin = await bcryptjs.hash(adminAuthPin, 8);
@@ -366,7 +350,7 @@ authRouter.post("/admin/createAuthorizationPin", async (req, res) => {
   }
 });
 
-authRouter.post("/admin/changeAdminAuthPin", async (req, res) => {
+authRouter.post("/admin/changeAdminAuthPin", admin, async (req, res) => {
   try {
     const { oldAdminAuthPin, newAdminAuthPin, admin } = req.body;
     const adminUsername = await AdminAuthPin.findOne({ admin: admin });
@@ -379,7 +363,8 @@ authRouter.post("/admin/changeAdminAuthPin", async (req, res) => {
         .status(400)
         .json({ message: "Incorrect Old Authorization Pin" });
     }
-    await AdminAuthPin.findOneAndUpdate({ pin: newAdminAuthPin });
+    const hashedPin = await bcryptjs.hash(newAdminAuthPin, 8);
+    await AdminAuthPin.findOneAndUpdate({ pin: hashedPin });
     res.status(200).json({ message: "Admin Auth Pin Updated Successfully" });
   } catch (e) {
     res.status(500).json({ message: e.message });

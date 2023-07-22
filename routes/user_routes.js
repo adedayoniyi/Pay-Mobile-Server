@@ -3,8 +3,9 @@ const User = require("../models/user_model");
 const bcryptjs = require("bcryptjs");
 const AdminAuthPin = require("../models/admin_auth_pin_model");
 const userRouter = express.Router();
+const { admin, agent } = require("../middlewares/admin_middleware");
 
-userRouter.get("/admin/getTotalNumberOfAllUsers", async (req, res) => {
+userRouter.get("/admin/getTotalNumberOfAllUsers", admin, async (req, res) => {
   try {
     const totalNumberOfUsers = await User.countDocuments({});
     res.status(200).json(totalNumberOfUsers);
@@ -13,7 +14,7 @@ userRouter.get("/admin/getTotalNumberOfAllUsers", async (req, res) => {
   }
 });
 
-userRouter.get("/admin/getAllUsers", async (req, res) => {
+userRouter.get("/admin/getAllUsers", admin, async (req, res) => {
   try {
     const allUsers = await User.find({});
     res.status(200).json(allUsers);
@@ -22,7 +23,7 @@ userRouter.get("/admin/getAllUsers", async (req, res) => {
   }
 });
 
-userRouter.delete("/admin/deleteUser/:username", async (req, res) => {
+userRouter.delete("/admin/deleteUser/:username", admin, async (req, res) => {
   try {
     const { username } = req.params;
     await User.findOneAndDelete({ username });
