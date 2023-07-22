@@ -9,14 +9,13 @@ const OTPSchema = require("../models/otp_model");
 const User = require("../models/user_model");
 const auth = require("../middlewares/auth_middleware");
 const AdminAuthPin = require("../models/admin_auth_pin_model");
-
 var expiryDate = Date.now() + 120000;
 let transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     type: "OAuth2",
     user: "adedayoniyio@gmail.com",
-    pass: "test",
+    pass: "pass",
     clientId: process.env.OAUTH_CLIENT_ID,
     clientSecret: process.env.OAUTH_CLIENT_SECRET,
     refreshToken: process.env.OAUTH_REFRESH_TOKEN,
@@ -33,7 +32,6 @@ const code = otpGenerator.generate(6, {
   alphabets: false,
   digits: true,
 });
-
 authRouter.post("/api/createUser", async (req, res) => {
   try {
     const { fullname, username, email, password } = req.body;
@@ -52,7 +50,6 @@ authRouter.post("/api/createUser", async (req, res) => {
       password: hashedPassword,
     });
     user = await user.save();
-
     return res.status(201).json({
       message: "User created successfully",
       message: user,
@@ -63,21 +60,17 @@ authRouter.post("/api/createUser", async (req, res) => {
     });
   }
 });
-
 authRouter.post("/api/signUpVerification", async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-    // console.log(user.fullname);
     let mailOptions = {
       from: "adedayoniyio@gmail.com",
       to: email,
       subject: "OTP To Complete Your Signup",
       html: `<html> <h1>Hi,</h1> <br/><p style="color:grey; font-size:1.2em">Please use the below OTP code to complete your account setup on My App</p><br><br><h1 style="color:orange">${code}</h1></html>`,
     };
-
     console.log(`DATE: ${expiryDate}`);
-
     await transporter.sendMail(mailOptions);
     await OTPSchema.create({
       email: email,
@@ -85,7 +78,6 @@ authRouter.post("/api/signUpVerification", async (req, res) => {
       expiry: expiryDate,
     });
     setTimeout(async () => {
-      // Delete the document with the matching email and otp
       await OTPSchema.deleteOne({ email: email, otp: code });
       console.log("OTP deleted successfully");
     }, expiryDate - Date.now());
@@ -99,7 +91,6 @@ authRouter.post("/api/signUpVerification", async (req, res) => {
     });
   }
 });
-
 authRouter.post("/api/verifyOtp", async (req, res) => {
   try {
     const { email, otpCode } = req.body;
@@ -107,18 +98,14 @@ authRouter.post("/api/verifyOtp", async (req, res) => {
     console.log(`Otp expiry is: ${otpData.expiry}`);
     if (otpData) {
       const otpExpiry = otpData.expiry;
-      // Check if OTP has expired
       if (Date.now() > otpExpiry) {
         return res.status(400).json({
           status: "failed",
           message: "Sorry this otp has expired!",
         });
       } else {
-        // Retrieve OTP code from database
         const rOtp = otpData.otp;
         console.log(`OTP code is: ${otpExpiry}`);
-
-        // Compare OTP for match
         if (otpCode == rOtp) {
           return res.status(200).json({
             status: "success",
