@@ -26,6 +26,7 @@ chatRouter.post("/api/chat", async (req, res) => {
         sender,
         receiver: randomAgent.username,
         chatName,
+        latestMessage: initialMessageContent,
       });
       await newChat.save();
       const initialMessage = new Message({
@@ -35,9 +36,6 @@ chatRouter.post("/api/chat", async (req, res) => {
         chat: newChat._id,
       });
       await initialMessage.save();
-      await Chat.findByIdAndUpdate(chat._id, {
-        latestMessage: initialMessageContent,
-      });
       res.status(201).json(newChat);
     } else {
       console.log("Chat Exists!!");
