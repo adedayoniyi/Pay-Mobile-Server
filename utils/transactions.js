@@ -48,7 +48,7 @@ const creditAccount = async ({
   const message = {
     notification: {
       title: "Credit Successful",
-      body: `You just received ${amount} from ${fullNameTransactionEntity}`,
+      body: `You just received ₦ ${amount} from ${fullNameTransactionEntity}`,
     },
     token: user.deviceToken,
   };
@@ -122,7 +122,7 @@ const debitAccount = async ({
   const message = {
     notification: {
       title: "Debit",
-      body: `You just seent ${amount} to ${fullNameTransactionEntity}`,
+      body: `You just sent ₦ ${amount} to ${fullNameTransactionEntity}`,
     },
     token: user.deviceToken,
   };
