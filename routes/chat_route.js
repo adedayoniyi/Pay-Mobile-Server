@@ -5,20 +5,20 @@ const admin = require("../middlewares/admin_middleware");
 const chatRouter = express.Router();
 
 chatRouter.post("/api/chat", async (req, res) => {
-  const { sender, receiver, chatName } = req.body;
+  const { sender, chatName } = req.body;
   try {
+    const agents = await User.find({ type: "agent" });
+    if (agents.length === 0) {
+      return res.status(400).json({ message: "No agents found" });
+    }
+    const randomAgent = agents[Math.floor(Math.random() * agents.length)];
     const chat = await Chat.findOne({
       $or: [
-        { $and: [{ sender: sender }, { receiver: receiver }] },
-        { $and: [{ sender: receiver }, { receiver: sender }] },
+        { $and: [{ sender: sender }, { receiver: randomAgent.username }] },
+        { $and: [{ sender: randomAgent.username }, { receiver: sender }] },
       ],
     });
     if (!chat) {
-      const agents = await User.find({ type: "agent" });
-      if (agents.length === 0) {
-        return res.status(400).json({ message: "No agents found" });
-      }
-      const randomAgent = agents[Math.floor(Math.random() * agents.length)];
       const newChat = new Chat({
         sender,
         receiver: randomAgent.username,
