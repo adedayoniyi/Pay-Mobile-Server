@@ -82,7 +82,7 @@ authRouter.post("/api/sendOtp/:sendPurpose", async (req, res) => {
       subject: purpose,
       html: `<html>
       <img src="https://res.cloudinary.com/dq60qoglh/image/upload/v1690057200/quzabl5mmq7i0n73lnxx.png" alt="Pay Mobile Logo">
-      <h1>Hi ,</h1>
+      <h1>Hi ${user.fullname},</h1>
       <p style="color:grey; font-size:1.2em">Please use the below ${purpose}</p>
         <h3 style="color:#B3E0B8">${code}</h3>
       <p style="color:grey; font-size:1em">If you did not initiate this login attempt, we strongly recommend contacting us through the in app support.</p>
