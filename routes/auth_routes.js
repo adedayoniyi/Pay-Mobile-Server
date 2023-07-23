@@ -310,7 +310,7 @@ authRouter.post("/api/changePin/:username", auth, async (req, res) => {
   }
 });
 
-authRouter.post("/admin/loginAdmin", admin || agent, async (req, res) => {
+authRouter.post("/admin/loginAdmin", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
