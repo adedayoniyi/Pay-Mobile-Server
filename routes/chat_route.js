@@ -1,6 +1,7 @@
 const express = require("express");
 const Chat = require("../models/chat_model");
 const User = require("../models/user_model");
+const { admin, agent } = require("../middlewares/admin_middleware");
 const chatRouter = express.Router();
 
 chatRouter.post("/api/chat", async (req, res) => {
@@ -42,7 +43,7 @@ chatRouter.post("/api/chat", async (req, res) => {
   }
 });
 
-chatRouter.get("/admin/getAllChats", async (req, res) => {
+chatRouter.get("/admin/getAllChats", admin, async (req, res) => {
   try {
     const allChats = await Chat.find({});
     res.status(200).json(allChats);
@@ -50,17 +51,21 @@ chatRouter.get("/admin/getAllChats", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-chatRouter.get("/admin/getAgentChat/:username", async (req, res) => {
-  try {
-    const { username } = req.params;
-    const agentChat = await Chat.find({ receiver: username });
-    if (agentChat.length == 0) {
-      return res.status(400).json({ message: "No chats found" });
+chatRouter.get(
+  "/admin/getAgentChat/:username",
+  admin || agent,
+  async (req, res) => {
+    try {
+      const { username } = req.params;
+      const agentChat = await Chat.find({ receiver: username });
+      if (agentChat.length == 0) {
+        return res.status(400).json({ message: "No chats found" });
+      }
+      res.status(200).json(agentChat);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
-    res.status(200).json(agentChat);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
-});
+);
 
 module.exports = chatRouter;

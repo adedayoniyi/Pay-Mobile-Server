@@ -6,6 +6,7 @@ const Transactions = require("../models/transaction_model");
 const { creditAccount, debitAccount } = require("../utils/transactions");
 const User = require("../models/user_model");
 const auth = require("../middlewares/auth_middleware");
+const { admin, agent } = require("../middlewares/admin_middleware");
 
 transactionRouter.post("/api/transactions/transfer", async (req, res) => {
   const session = await mongoose.startSession();
@@ -142,15 +143,20 @@ transactionRouter.get(
   }
 );
 
-transactionRouter.get("/admin/getAllUserTransactions", async (req, res) => {
-  try {
-    res.header("Access-Control-Allow-Origin", "*"); // allow any origin
-    const transactions = await Transactions.find({});
-    res.status(200).json(transactions);
-  } catch (e) {
-    res.status(500).json({ message: e.message });
+transactionRouter.get(
+  "/admin/getAllUserTransactions",
+  admin || agent,
+  async (req, res) => {
+    try {
+      res.header("Access-Control-Allow-Origin", "*"); // allow any origin
+      const transactions = await Transactions.find({});
+      let showTransactionsFromRecentToLast = transactions.reverse();
+      res.status(200).json(showTransactionsFromRecentToLast);
+    } catch (e) {
+      res.status(500).json({ message: e.message });
+    }
   }
-});
+);
 
 transactionRouter.get("/admin/getNumberOfWalletFundings", async (req, res) => {
   try {

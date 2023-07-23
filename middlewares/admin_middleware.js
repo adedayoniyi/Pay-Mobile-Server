@@ -1,7 +1,7 @@
 const User = require("../models/user_model");
 const jwt = require("jsonwebtoken");
 
-const adminAuth = async (req, res, next) => {
+const admin = async (req, res, next) => {
   const token = req.header("x-auth-token");
   if (token) {
     try {
@@ -22,7 +22,7 @@ const adminAuth = async (req, res, next) => {
   }
 };
 
-const agentAuth = async (req, res, next) => {
+const agent = async (req, res, next) => {
   const token = req.header("x-auth-token");
   if (token) {
     try {
@@ -44,6 +44,6 @@ const agentAuth = async (req, res, next) => {
 };
 
 module.exports = {
-  adminAuth,
-  agentAuth,
+  admin,
+  agent,
 };
