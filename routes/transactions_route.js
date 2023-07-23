@@ -145,7 +145,7 @@ transactionRouter.get(
 
 transactionRouter.get(
   "/admin/getAllUserTransactions",
-  admin || agent,
+  admin,
   async (req, res) => {
     try {
       res.header("Access-Control-Allow-Origin", "*"); // allow any origin

@@ -8,7 +8,7 @@ const OTPSchema = require("../models/otp_model");
 const User = require("../models/user_model");
 const auth = require("../middlewares/auth_middleware");
 const AdminAuthPin = require("../models/admin_auth_pin_model");
-const { admin, agent } = require("../middlewares/admin_middleware");
+const admin = require("../middlewares/admin_middleware");
 
 var expiryDate = Date.now() + 120000;
 let transporter = nodemailer.createTransport({
