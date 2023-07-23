@@ -15,8 +15,8 @@ let transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     type: "OAuth2",
-    user: "adedayoniyio@gmail.com",
-    pass: "pass",
+    user: process.env.EMAIL_ADDRESS,
+    pass: process.env.GMAIL_PASSWORD,
     clientId: process.env.OAUTH_CLIENT_ID,
     clientSecret: process.env.OAUTH_CLIENT_SECRET,
     refreshToken: process.env.OAUTH_REFRESH_TOKEN,
@@ -318,7 +318,7 @@ authRouter.post("/admin/loginAdmin", async (req, res) => {
       return res.status(400).json({ message: "User Not Found" });
     }
     if (user.type != "admin" && user.type != "agent") {
-      return res.status(401).json({ message: "Access Denied!" });
+      return res.status(400).json({ message: "Access Denied!" });
     }
     const isMatch = await bcryptjs.compare(password, user.password);
     if (!isMatch) {

@@ -23,17 +23,17 @@ userRouter.get("/admin/getAllUsers", admin, async (req, res) => {
   }
 });
 
-userRouter.delete("/admin/deleteUser/:username", admin, async (req, res) => {
-  try {
-    const { username } = req.params;
-    await User.findOneAndDelete({ username });
-    res.status(200).json({ message: "User deleted successfully" });
-  } catch (e) {
-    res.status(500).json({ message: e.message });
-  }
-});
+// userRouter.delete("/admin/deleteUser/:username", admin, async (req, res) => {
+//   try {
+//     const { username } = req.params;
+//     await User.findOneAndDelete({ username });
+//     res.status(200).json({ message: "User deleted successfully" });
+//   } catch (e) {
+//     res.status(500).json({ message: e.message });
+//   }
+// });
 
-userRouter.get("/admin/getAllAdmin", async (req, res) => {
+userRouter.get("/admin/getAllAdmin", admin, async (req, res) => {
   try {
     const allAdmins = await User.find({ type: "admin" || "agent" });
     res.status(200).json(allAdmins);
@@ -42,7 +42,7 @@ userRouter.get("/admin/getAllAdmin", async (req, res) => {
   }
 });
 
-userRouter.post("/admin/createAdmin", async (req, res) => {
+userRouter.post("/admin/createAdmin", admin, async (req, res) => {
   try {
     const { fullname, username, email, password, type } = req.body;
     const userExists = await User.findOne({ username });
@@ -71,7 +71,7 @@ userRouter.post("/admin/createAdmin", async (req, res) => {
   }
 });
 
-userRouter.delete("/admin/deleteAdmin", async (req, res) => {
+userRouter.delete("/admin/deleteUser", admin, async (req, res) => {
   try {
     const { authorizationPin, username } = req.body;
     const user = await User.findOne({ username });
