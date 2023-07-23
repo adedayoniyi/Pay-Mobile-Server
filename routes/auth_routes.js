@@ -100,7 +100,6 @@ authRouter.post("/api/sendOtp/:sendPurpose", async (req, res) => {
       console.log("OTP deleted successfully");
     }, expiryDate - Date.now());
 
-    await User.findOneAndUpdate({ username }, { isVerified: true });
     return res.status(200).json({
       message: "OTP has been sent to the provided email.",
     });
@@ -126,6 +125,7 @@ authRouter.post("/api/verifyOtp", async (req, res) => {
         const rOtp = otpData.otp;
         console.log(`OTP code is: ${otpExpiry}`);
         if (otpCode == rOtp) {
+          await User.findOneAndUpdate({ email }, { isVerified: true });
           return res.status(200).json({
             status: "success",
             message: "OTP successfully confirmed!. Please Login",
