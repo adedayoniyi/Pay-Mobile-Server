@@ -16,10 +16,7 @@ chatRouter.post("/api/chat", async (req, res) => {
     }
     const randomAgent = agents[Math.floor(Math.random() * agents.length)];
     const chat = await Chat.findOne({
-      $or: [
-        { $and: [{ sender: sender }, { receiver: randomAgent.username }] },
-        { $and: [{ sender: randomAgent.username }, { receiver: sender }] },
-      ],
+      sender: sender,
     });
     if (!chat) {
       const newChat = new Chat({
