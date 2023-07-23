@@ -10,29 +10,6 @@ const auth = require("../middlewares/auth_middleware");
 const AdminAuthPin = require("../models/admin_auth_pin_model");
 const admin = require("../middlewares/admin_middleware");
 
-var expiryDate = Date.now() + 120000;
-let transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    type: "OAuth2",
-    user: process.env.EMAIL_ADDRESS,
-    pass: process.env.GMAIL_PASSWORD,
-    clientId: process.env.OAUTH_CLIENT_ID,
-    clientSecret: process.env.OAUTH_CLIENT_SECRET,
-    refreshToken: process.env.OAUTH_REFRESH_TOKEN,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
-const code = otpGenerator.generate(6, {
-  lowerCaseAlphabets: false,
-  upperCaseAlphabets: false,
-  upperCase: false,
-  specialChars: false,
-  alphabets: false,
-  digits: true,
-});
 authRouter.post("/api/createUser", async (req, res) => {
   try {
     const { fullname, username, email, password } = req.body;
@@ -63,6 +40,29 @@ authRouter.post("/api/createUser", async (req, res) => {
 });
 authRouter.post("/api/sendOtp/:sendPurpose", async (req, res) => {
   try {
+    var expiryDate = Date.now() + 120000;
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: process.env.EMAIL_ADDRESS,
+        pass: process.env.GMAIL_PASSWORD,
+        clientId: process.env.OAUTH_CLIENT_ID,
+        clientSecret: process.env.OAUTH_CLIENT_SECRET,
+        refreshToken: process.env.OAUTH_REFRESH_TOKEN,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+    const code = otpGenerator.generate(6, {
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
+      upperCase: false,
+      specialChars: false,
+      alphabets: false,
+      digits: true,
+    });
     const { sendPurpose } = req.params;
     const { email } = req.body;
     const user = await User.findOne({ email });
