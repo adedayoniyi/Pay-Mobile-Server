@@ -42,7 +42,7 @@ chatRouter.post("/api/chat", async (req, res) => {
       res.status(200).json(chat);
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
