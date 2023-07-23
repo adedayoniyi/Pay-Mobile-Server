@@ -6,7 +6,7 @@ const Transactions = require("../models/transaction_model");
 const { creditAccount, debitAccount } = require("../utils/transactions");
 const User = require("../models/user_model");
 const auth = require("../middlewares/auth_middleware");
-const { admin, agent } = require("../middlewares/admin_middleware");
+const admin = require("../middlewares/admin_middleware");
 
 transactionRouter.post("/api/transactions/transfer", async (req, res) => {
   const session = await mongoose.startSession();

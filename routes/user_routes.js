@@ -3,7 +3,7 @@ const User = require("../models/user_model");
 const bcryptjs = require("bcryptjs");
 const AdminAuthPin = require("../models/admin_auth_pin_model");
 const userRouter = express.Router();
-const { admin, agent } = require("../middlewares/admin_middleware");
+const admin = require("../middlewares/admin_middleware");
 
 userRouter.get("/admin/getTotalNumberOfAllUsers", admin, async (req, res) => {
   try {

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const admin = require("firebase-admin");
+const firebaseAdmin = require("firebase-admin");
 const User = require("../models/user_model");
 
 router.post("/admin/sendPushNotifications", async (req, res) => {
@@ -23,7 +23,7 @@ router.post("/admin/sendPushNotifications", async (req, res) => {
       },
     };
 
-    admin
+    firebaseAdmin
       .messaging()
       .sendEachForMulticast(messages)
       .then((response) => {
