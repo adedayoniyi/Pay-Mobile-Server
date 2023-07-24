@@ -66,6 +66,11 @@ authRouter.post("/api/sendOtp/:sendPurpose", async (req, res) => {
     const { sendPurpose } = req.params;
     const { email } = req.body;
     const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "User With This Email Not Found" });
+    }
     let purpose = "";
     if (sendPurpose == "sign-up-verification") {
       purpose = "OTP Code To Confirm SignUp";
