@@ -82,7 +82,7 @@ authRouter.post("/api/sendOtp/:sendPurpose", async (req, res) => {
       purpose = "";
     }
     let mailOptions = {
-      from: "adedayoniyio@gmail.com",
+      from: process.env.EMAIL_ADDRESS,
       to: email,
       subject: purpose,
       html: `<html>

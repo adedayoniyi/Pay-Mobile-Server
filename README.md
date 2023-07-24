@@ -8,6 +8,8 @@
 
 ### You have to create a `.env` for the required environment variables as the one here has been removed
 
+#### Here are the necessary data
+
 ```env
 DATABASE_URL = Database URL(e.g MongoDB)
 PORT = PORT(e.g 4000)
@@ -21,7 +23,7 @@ EMAIL_ADDRESS=Your Email address to be used for NodeMailer
 PAY_MOBILE_DATABASE=Your server URL
 ```
 
-#### After cloning just run this and you server will be live:
+#### After cloning and updating the necessary `env` data, just run this and you server will be live:
 
 ```bash
 npm run dev
