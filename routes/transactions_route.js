@@ -8,7 +8,7 @@ const User = require("../models/user_model");
 const auth = require("../middlewares/auth_middleware");
 const admin = require("../middlewares/admin_middleware");
 
-transactionRouter.post("/api/transactions/transfer", async (req, res) => {
+transactionRouter.post("/api/transactions/transfer", auth, async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -94,7 +94,7 @@ transactionRouter.get(
   }
 );
 
-transactionRouter.post("/api/fundWallet/:username", async (req, res) => {
+transactionRouter.post("/api/fundWallet/:username", auth, async (req, res) => {
   try {
     const { username } = req.params;
     /*please note if this will be used with the flutter app,
@@ -133,6 +133,7 @@ transactionRouter.post("/api/fundWallet/:username", async (req, res) => {
 
 transactionRouter.get(
   "/admin/getTotalNumberOfTransactions",
+  admin,
   async (req, res) => {
     try {
       const transactions = await Transactions.countDocuments({});
@@ -158,20 +159,25 @@ transactionRouter.get(
   }
 );
 
-transactionRouter.get("/admin/getNumberOfWalletFundings", async (req, res) => {
-  try {
-    res.header("Access-Control-Allow-Origin", "*"); // allow any origin
-    const transactions = await Transactions.find({
-      trnxType: "Wallet Funding",
-    });
-    res.status(200).json(transactions.length);
-  } catch (e) {
-    res.status(500).json({ message: e.message });
+transactionRouter.get(
+  "/admin/getNumberOfWalletFundings",
+  admin,
+  async (req, res) => {
+    try {
+      res.header("Access-Control-Allow-Origin", "*"); // allow any origin
+      const transactions = await Transactions.find({
+        trnxType: "Wallet Funding",
+      });
+      res.status(200).json(transactions.length);
+    } catch (e) {
+      res.status(500).json({ message: e.message });
+    }
   }
-});
+);
 
 transactionRouter.get(
   "/admin/getNumberOfCreditTransactions",
+  admin,
   async (req, res) => {
     try {
       res.header("Access-Control-Allow-Origin", "*"); // allow any origin
@@ -187,6 +193,7 @@ transactionRouter.get(
 
 transactionRouter.get(
   "/admin/getNumberOfDebitTransactions",
+  admin,
   async (req, res) => {
     try {
       res.header("Access-Control-Allow-Origin", "*"); // allow any origin

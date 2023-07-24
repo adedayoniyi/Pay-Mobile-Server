@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const firebaseAdmin = require("firebase-admin");
 const User = require("../models/user_model");
+const admin = require("../middlewares/admin_middleware");
 
-router.post("/admin/sendPushNotifications", async (req, res) => {
+router.post("/admin/sendPushNotifications", admin, async (req, res) => {
   try {
     const { title, body } = req.body;
 

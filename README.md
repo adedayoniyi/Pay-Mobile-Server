@@ -8,16 +8,18 @@
 
 ### You have to create a `.env` for the required environment variables as the one here has been removed
 
-1. DATABASE_URL = Database URL(e.g MongoDB)
-2. PORT = PORT(e.g 4000)
-3. TOKEN_STRING=Random Token String for signing user tokens
-4. databaseURL=Firebase Database URL
-5. OAUTH_REFRESH_TOKEN=Oauth Refresh Token. Get it from the https://developers.google.com/oauthplayground/
-6. OAUTH_CLIENT_SECRET=Oauth Client Secret from Google Cloud
-7. OAUTH_CLIENT_ID=Oauth Client ID from Google Cloud
-8. GMAIL_PASSWORD=Your Email Password to be used for NodeMailer
-9. EMAIL_ADDRESS=Your Email address to be used for NodeMailer
-10. PAY_MOBILE_DATABASE=Your server URL
+```env
+DATABASE_URL = Database URL(e.g MongoDB)
+PORT = PORT(e.g 4000)
+TOKEN_STRING=Random Token String for signing user tokens
+databaseURL=Firebase Database URL
+OAUTH_REFRESH_TOKEN=Oauth Refresh Token. Get it from the https://developers.google.com/oauthplayground/
+OAUTH_CLIENT_SECRET=Oauth Client Secret from Google Cloud
+OAUTH_CLIENT_ID=Oauth Client ID from Google Cloud
+GMAIL_PASSWORD=Your Email Password to be used for NodeMailer
+EMAIL_ADDRESS=Your Email address to be used for NodeMailer
+PAY_MOBILE_DATABASE=Your server URL
+```
 
 #### After cloning just run this and you server will be live:
 
@@ -25,9 +27,9 @@
 npm run dev
 ```
 
-#### These are some of the major API endpoints
+### These are some of the major API endpoints
 
-1. Methods: `POST` `/api/createUser` This is for user sign up<br/>
+#### 1. Methods: `POST` `/api/createUser` This is for user sign up<br/>
 
 Request
 
@@ -62,7 +64,9 @@ Response
 }
 ```
 
-<br/> 2. Methods: `POST` `/api/login` This is for user login where a token is generated<br/>
+<br/>
+
+#### 2. Methods: `POST` `/api/login` This is for user login where a token is generated<br/>
 
 Request
 
@@ -94,7 +98,9 @@ Response
 }
 ```
 
-<br/> 3. Methods: `POST` `/api/chat` This is used to create a new chat or return an existing chat<br/>
+<br/>
+
+#### 3. Methods: `POST` `/api/chat` This is used to create a new chat or return an existing chat<br/>
 
 Request
 
@@ -108,6 +114,7 @@ Request
 Response
 
 ```json
+201 Created
 {
   "chatName": "Pay Mobile Support",
   "sender": "musk",
@@ -122,7 +129,9 @@ Response
 
  <br/>
 
-<br/> 4. Methods: `POST` `/api/transactions/transfer` This is for sending wallet balance from one user to another<br/>
+<br/>
+
+#### 4. Methods: `POST` `/api/transactions/transfer` This is for sending wallet balance from one user to another<br/>
 
 Request
 
@@ -138,6 +147,7 @@ Request
 Response
 
 ```json
+201 Created
 {
   "message": "Transfer successful",
   "transferResult": [
@@ -223,7 +233,9 @@ Response
 
 <br/>
 
-<br/> 5. Methods: `POST` `/admin/sendPushNotifications` This is used for sending push notifications to registered users. Only Admins can use this route <br/>
+<br/>
+
+#### 5. Methods: `POST` `/admin/sendPushNotifications` This is used for sending push notifications to registered users. Only Admins can use this route <br/>
 
 Request
 

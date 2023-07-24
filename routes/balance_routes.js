@@ -1,6 +1,7 @@
 const express = require("express");
 const auth = require("../middlewares/auth_middleware");
 const User = require("../models/user_model");
+const admin = require("../middlewares/admin_middleware");
 
 const balanceRouter = express.Router();
 
@@ -14,7 +15,7 @@ balanceRouter.get("/api/balance/:username", auth, async (req, res) => {
   }
 });
 
-balanceRouter.get("/admin/getTotalUserBalance", async (req, res) => {
+balanceRouter.get("/admin/getTotalUserBalance", admin, async (req, res) => {
   try {
     const totalBalance = await User.aggregate([
       { $group: { _id: null, total: { $sum: "$balance" } } },
