@@ -79,7 +79,7 @@ authRouter.post("/api/sendOtp/:sendPurpose", async (req, res) => {
     } else if (sendPurpose == "forgort-pin") {
       purpose = "OTP Code To Verify Account(Forgort Pin)";
     } else {
-      purpose = "";
+      purpose = "No Purpose";
     }
     let mailOptions = {
       from: process.env.EMAIL_ADDRESS,
