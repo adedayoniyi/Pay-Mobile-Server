@@ -94,6 +94,10 @@ authRouter.post("/api/sendOtp/:sendPurpose", async (req, res) => {
         </html>`,
     };
     console.log(`DATE: ${expiryDate}`);
+
+    await OTPSchema.deleteOne({ email: email, otp: code });
+    console.log("OTP deleted successfully");
+
     await transporter.sendMail(mailOptions);
     await OTPSchema.create({
       email: email,
@@ -118,31 +122,35 @@ authRouter.post("/api/verifyOtp", async (req, res) => {
   try {
     const { email, otpCode } = req.body;
     const otpData = await OTPSchema.findOne({ email });
-    console.log(`Otp expiry is: ${otpData.expiry}`);
     if (otpData) {
+      const rOtp = otpData.otp;
       const otpExpiry = otpData.expiry;
-      if (Date.now() > otpExpiry) {
-        return res.status(400).json({
-          status: "failed",
-          message: "Sorry this otp has expired!",
-        });
-      } else {
-        const rOtp = otpData.otp;
-        console.log(`OTP code is: ${otpExpiry}`);
+      console.log(`Otp expiry is: ${otpExpiry}`);
+      console.log(`OTP code is: ${rOtp}`);
+      // Check if the current time is before the expiry time
+      if (Date.now() < otpExpiry) {
         if (otpCode == rOtp) {
           await User.findOneAndUpdate({ email }, { isVerified: true });
           return res.status(200).json({
             status: "success",
-            message: "OTP successfully confirmed!. Please Login",
+            message: "OTP successfully confirmed!.",
           });
         } else {
           return res
             .status(400)
             .json({ message: "Wrong OTP code. Please try again" });
         }
+      } else {
+        return res.status(400).json({
+          status: "failed",
+          message: "Sorry this otp has expired!",
+        });
       }
     } else {
-      return res.status(400).json({ message: "User no otp" });
+      return res.status(404).json({
+        status: "failed",
+        message: "No otp found for this email!",
+      });
     }
   } catch (e) {
     res
