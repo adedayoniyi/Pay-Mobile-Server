@@ -4,7 +4,7 @@ const Message = require("../models/message_model");
 const admin = require("../middlewares/admin_middleware");
 const messageRouter = express.Router();
 
-messageRouter.get("/chat/:chatId/messages", admin, async (req, res) => {
+messageRouter.get("/chat/:chatId/messages", async (req, res) => {
   const { chatId } = req.params;
   try {
     const messages = await Message.find({ chat: chatId });
