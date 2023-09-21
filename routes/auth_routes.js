@@ -10,6 +10,7 @@ const auth = require("../middlewares/auth_middleware");
 const AdminAuthPin = require("../models/admin_auth_pin_model");
 const admin = require("../middlewares/admin_middleware");
 
+//POST
 authRouter.post("/api/createUser", async (req, res) => {
   try {
     const { fullname, username, email, password } = req.body;
@@ -213,19 +214,14 @@ authRouter.get("/", auth, async (req, res) => {
 });
 
 // This endpoint should only be used once the forgort password returns a 200 OK
-authRouter.post("/api/changePassword/:email", auth, async (req, res) => {
+authRouter.post("/api/changePassword/:email", async (req, res) => {
   try {
     const { email } = req.params.email;
     const { password, confirmPassword } = req.body;
-    const hashedPassword = await bcryptjs.hash(password, 8);
-    const hashedConfirmPassword = await bcryptjs.hash(confirmPassword, 8);
-    const isMatch = await bcryptjs.compare(
-      hashedPassword,
-      hashedConfirmPassword
-    );
-    if (!isMatch) {
+    if (password != confirmPassword) {
       res.status(400).json({ message: "Passwords do not match" });
     }
+    const hashedPassword = await bcryptjs.hash(password, 8);
     await User.findOneAndUpdate({ email }, { password: hashedPassword });
     res.status(200).json({ message: "Password changed successfully" });
   } catch (e) {
