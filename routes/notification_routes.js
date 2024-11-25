@@ -40,4 +40,41 @@ router.post("/admin/sendPushNotifications", admin, async (req, res) => {
   }
 });
 
+
+// Route to send push notification to a specific device
+router.post("/admin/sendPushNotificationToDevice", admin, async (req, res) => {
+  try {
+    const { deviceToken, title, body } = req.body;
+
+    if (!deviceToken) {
+      return res.status(400).json({ message: "Device token is required" });
+    }
+
+    const message = {
+      token: deviceToken,
+      notification: {
+        title: title,
+        body: body,
+      },
+    };
+
+    // Send push notification
+    firebaseAdmin
+      .messaging()
+      .send(message)
+      .then((response) => {
+        console.log("Successfully sent message:", response);
+        res.status(200).json({ message: "Notification sent successfully" });
+      })
+      .catch((error) => {
+        console.error("Error sending message:", error);
+        res.status(500).json({ message: "Error sending notification" });
+      });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
+
+
 module.exports = router;

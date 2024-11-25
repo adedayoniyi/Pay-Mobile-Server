@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const admin = require("firebase-admin");
+
 dotenv.config();
 const authRouter = require("./routes/auth_routes");
 const balanceRouter = require("./routes/balance_routes");
@@ -14,10 +15,10 @@ const Chat = require("./models/chat_model");
 const chatRouter = require("./routes/chat_route");
 const messageRouter = require("./routes/message_route");
 
-const serviceAccountPath =
-  "./pay-mobile-firebase-adminsdk.json" ||
-  "/etc/secrets/pay-mobile-firebase-adminsdk.json";
-var serviceAccount = require(serviceAccountPath);
+// Decode the base64-encoded service account
+const serviceAccountJSON = Buffer.from(process.env.ENCODED_SERVICE_ACCOUNT, "base64").toString("utf8");
+const serviceAccount = JSON.parse(serviceAccountJSON);
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: process.env.databaseURL,

@@ -39,86 +39,88 @@ authRouter.post("/api/createUser", async (req, res) => {
     });
   }
 });
-authRouter.post("/api/sendOtp/:sendPurpose", async (req, res) => {
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // Adjust as needed
+  auth: {
+    user: process.env.EMAIL_ADDRESS,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+
+authRouter.post('/api/sendOtp/:sendPurpose', async (req, res) => {
   try {
-    var expiryDate = Date.now() + 120000;
-    let transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        type: "OAuth2",
-        user: process.env.EMAIL_ADDRESS,
-        pass: process.env.GMAIL_PASSWORD,
-        clientId: process.env.OAUTH_CLIENT_ID,
-        clientSecret: process.env.OAUTH_CLIENT_SECRET,
-        refreshToken: process.env.OAUTH_REFRESH_TOKEN,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
-    const code = otpGenerator.generate(6, {
-      lowerCaseAlphabets: false,
-      upperCaseAlphabets: false,
-      upperCase: false,
-      specialChars: false,
-      alphabets: false,
-      digits: true,
-    });
+    const expiryDate = Date.now() + 120000; // OTP expires in 2 minutes
     const { sendPurpose } = req.params;
     const { email } = req.body;
     const user = await User.findOne({ email });
+
     if (!user) {
-      return res
-        .status(400)
-        .json({ message: "User With This Email Not Found" });
+      return res.status(400).json({ message: 'User With This Email Not Found' });
     }
-    let purpose = "";
-    if (sendPurpose == "sign-up-verification") {
-      purpose = "OTP Code To Confirm SignUp";
-    } else if (sendPurpose == "forgort-password") {
-      purpose = "OTP Code To Verify Account(Forgort Password)";
-    } else if (sendPurpose == "forgort-pin") {
-      purpose = "OTP Code To Verify Account(Forgort Pin)";
-    } else {
-      purpose = "No Purpose";
+
+    const code = otpGenerator.generate(6, {
+      digits: true,
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
+
+    let purpose = '';
+    switch (sendPurpose) {
+      case 'sign-up-verification':
+        purpose = 'OTP Code To Confirm SignUp';
+        break;
+      case 'forgort-password':
+        purpose = 'OTP Code To Verify Account (Forgot Password)';
+        break;
+      case 'forgot-pin':
+        purpose = 'OTP Code To Verify Account (Forgot Pin)';
+        break;
+      default:
+        purpose = 'No Purpose';
     }
-    let mailOptions = {
+
+    const mailOptions = {
       from: process.env.EMAIL_ADDRESS,
       to: email,
       subject: purpose,
       html: `<html>
-      <img src="https://res.cloudinary.com/dq60qoglh/image/upload/v1690057200/quzabl5mmq7i0n73lnxx.png" alt="Pay Mobile Logo">
-      <h1>Hi ${user.fullname},</h1>
-      <p style="color:grey; font-size:1.2em">Please use the below ${purpose}</p>
+        <img src="https://res.cloudinary.com/dq60qoglh/image/upload/v1690057200/quzabl5mmq7i0n73lnxx.png" alt="Pay Mobile Logo">
+        <h1>Hi ${user.fullname},</h1>
+        <p style="color:grey; font-size:1.2em">Please use the below ${purpose}</p>
         <h3 style="color:#B3E0B8">${code}</h3>
-      <p style="color:grey; font-size:1em">If you did not initiate this login attempt, we strongly recommend contacting us through the in app support.</p>
-        </html>`,
+        <p style="color:grey; font-size:1em">If you did not initiate this login attempt, we strongly recommend contacting us through the in-app support.</p>
+      </html>`,
     };
-    console.log(`DATE: ${expiryDate}`);
 
-    await OTPSchema.deleteOne({ email: email, otp: code });
-    console.log("OTP deleted successfully");
+    await OTPSchema.deleteOne({ email, otp: code });
+    console.log('Previous OTP deleted successfully');
 
     await transporter.sendMail(mailOptions);
     await OTPSchema.create({
-      email: email,
+      email,
       otp: code,
       expiry: expiryDate,
     });
+
+    console.log(`The OTP code is ${code}`)
+
     setTimeout(async () => {
-      await OTPSchema.deleteOne({ email: email, otp: code });
-      console.log("OTP deleted successfully");
+      await OTPSchema.deleteOne({ email, otp: code });
+      console.log('OTP deleted after expiration');
     }, expiryDate - Date.now());
 
     return res.status(200).json({
-      message: "OTP has been sent to the provided email.",
+      message: 'OTP has been sent to the provided email.',
     });
   } catch (e) {
     return res.status(500).json({
-      message: `Unknown error occured:${e}`,
+      message: `Unknown error occurred: ${e}`,
     });
   }
 });
+
+
 authRouter.post("/api/verifyOtp", async (req, res) => {
   try {
     const { email, otpCode } = req.body;
@@ -163,6 +165,7 @@ authRouter.post("/api/verifyOtp", async (req, res) => {
 authRouter.post("/api/login", async (req, res) => {
   try {
     const { username, password, deviceToken } = req.body;
+    console.log(`Device token: ${deviceToken}`)
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(409).json({
@@ -216,18 +219,31 @@ authRouter.get("/", auth, async (req, res) => {
 // This endpoint should only be used once the forgort password returns a 200 OK
 authRouter.post("/api/changePassword/:email", async (req, res) => {
   try {
-    const { email } = req.params.email;
+    const { email } = req.params;
     const { password, confirmPassword } = req.body;
-    if (password != confirmPassword) {
-      res.status(400).json({ message: "Passwords do not match" });
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
     }
+
     const hashedPassword = await bcryptjs.hash(password, 8);
-    await User.findOneAndUpdate({ email }, { password: hashedPassword });
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { password: hashedPassword },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     res.status(200).json({ message: "Password changed successfully" });
   } catch (e) {
+    console.error(`Password reset error: ${e.message}`);
     res.status(500).json({ message: e.message });
   }
 });
+
 
 authRouter.get("/api/getUsername/:username", auth, async (req, res) => {
   try {
